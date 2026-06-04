@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Ega</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #1c1c22;
+            --bg2:      #22222a;
+            --env:      #2a2a35;
+            --env-dark: #1e1e28;
+            --env-flap: #333340;
+            --cream:    #f7f3ed;
+            --sage:     #8fa888;
+            --dusty:    #c4a8a0;
+            --lav:      #a89fc4;
+            --ink:      #26242e;
+            --ink-mid:  #5a5770;
+            --ink-soft: #9b98a8;
+            --line:     rgba(0,0,0,0.055);
+        }
+
+        body {
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 20% 25%, rgba(168,159,196,0.09) 0%, transparent 55%),
+                radial-gradient(ellipse at 80% 75%, rgba(143,168,136,0.07) 0%, transparent 55%);
+            min-height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* ─── STARS / SUBTLE DOTS ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,0.35) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.18) 1px, transparent 1px);
+            background-size: 120px 120px, 60px 60px;
+            background-position: 0 0, 30px 30px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.18;
+        }
+
+        #balloons-canvas {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1s ease 0.3s;
+        }
+        #balloons-canvas.visible { opacity: 1; }
+
+        /* ─── START ─── */
+        #start-screen {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            animation: fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+
+        .start-eyebrow {
+            font-size: 0.62rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--lav);
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+
+        .start-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.4rem, 8vw, 3.4rem);
+            font-weight: 400;
+            color: var(--cream);
+            line-height: 1.15;
+            margin-bottom: 6px;
+        }
+
+        .start-title em {
+            font-style: italic;
+            color: var(--dusty);
+        }
+
+        .start-rule {
+            width: 40px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--lav), transparent);
+            margin: 18px auto 20px;
+        }
+
+        .start-sub {
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            color: rgba(255,255,255,0.2);
+            margin-bottom: 38px;
+        }
+
+        .start-btn {
+            background: transparent;
+            color: var(--cream);
+            border: 1px solid rgba(247,243,237,0.2);
+            padding: 12px 34px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
+        }
+
+        .start-btn:hover {
+            background: rgba(247,243,237,0.07);
+            border-color: rgba(247,243,237,0.38);
+        }
+
+        /* ─── ENVELOPE ─── */
+        #envelope-screen {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .env-hint {
+            font-size: 0.62rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.22);
+            transition: opacity 0.4s;
+        }
+
+        .envelope-wrap {
+            position: relative;
+            width: 290px;
+            height: 194px;
+            cursor: pointer;
+            transition: transform 0.25s;
+            filter: drop-shadow(0 18px 44px rgba(0,0,0,0.55));
+        }
+        .envelope-wrap:hover { transform: translateY(-5px); }
+
+        .env-body {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(150deg, #2e2e3c 0%, #1e1e28 100%);
+            border-radius: 3px 3px 5px 5px;
+            border: 1px solid rgba(168,159,196,0.15);
+        }
+
+        .env-fold-l {
+            position: absolute; bottom: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 145px solid rgba(14,14,20,0.88);
+            border-top: 97px solid transparent;
+            z-index: 2;
+        }
+        .env-fold-r {
+            position: absolute; bottom: 0; right: 0;
+            width: 0; height: 0;
+            border-right: 145px solid rgba(14,14,20,0.88);
+            border-top: 97px solid transparent;
+            z-index: 2;
+        }
+        .env-flap {
+            position: absolute; top: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 145px solid transparent;
+            border-right: 145px solid transparent;
+            border-top: 97px solid var(--env-flap);
+            transform-origin: top center;
+            transition: transform 0.55s cubic-bezier(0.4,0,0.2,1);
+            z-index: 3;
+        }
+
+        .env-stamp {
+            position: absolute;
+            top: 14px; right: 16px;
+            width: 34px; height: 42px;
+            border: 1px solid rgba(168,159,196,0.22);
+            border-radius: 2px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            z-index: 4;
+            opacity: 0.6;
+        }
+
+        .env-address {
+            position: absolute;
+            bottom: 24px; left: 22px;
+            z-index: 4;
+        }
+        .env-address .to {
+            font-size: 0.55rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(168,159,196,0.5);
+            margin-bottom: 4px;
+        }
+        .env-address .name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            font-style: italic;
+            color: rgba(247,243,237,0.7);
+        }
+
+        .env-seal {
+            position: absolute;
+            bottom: -11px; left: 50%;
+            transform: translateX(-50%);
+            width: 26px; height: 26px;
+            background: var(--dusty);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 0 0 3px var(--bg), 0 3px 12px rgba(196,168,160,0.4);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff;
+            font-size: 9px;
+            transition: opacity 0.3s;
+        }
+
+        .envelope-wrap.opening .env-flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope-wrap.opening .env-seal { opacity: 0; }
+        .envelope-wrap.opening {
+            animation: envOut 0.4s ease 0.65s forwards;
+            pointer-events: none;
+        }
+        @keyframes envOut { to { opacity: 0; transform: translateY(10px) scale(0.95); } }
+
+        /* ─── LETTER ─── */
+        #letter-screen {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 320px;
+            padding: 20px 0 44px;
+            animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) forwards;
+        }
+
+        .letter-card {
+            background: var(--cream);
+            border-radius: 5px;
+            box-shadow:
+                0 0 0 1px rgba(168,159,196,0.12),
+                0 24px 64px rgba(0,0,0,0.55);
+            overflow: hidden;
+        }
+
+        /* 3-stripe top bar — sage / cream gap / dusty */
+        .letter-topbar {
+            display: flex;
+            height: 3px;
+        }
+        .letter-topbar span {
+            flex: 1;
+            display: block;
+        }
+        .letter-topbar span:nth-child(1) { background: var(--sage); }
+        .letter-topbar span:nth-child(2) { background: var(--cream); flex: 0 0 4px; }
+        .letter-topbar span:nth-child(3) { background: var(--dusty); }
+
+        .letter-content {
+            padding: 20px 20px 26px;
+            background-image: repeating-linear-gradient(
+                transparent, transparent 27px,
+                var(--line) 27px, var(--line) 28px
+            );
+            background-position: 0 42px;
+        }
+
+        .bday-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(143,168,136,0.12);
+            border: 1px solid rgba(143,168,136,0.3);
+            color: #5a7a55;
+            font-size: 0.58rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 50px;
+            margin-bottom: 14px;
+        }
+
+        .letter-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .letter-to-label {
+            font-size: 0.56rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin-bottom: 2px;
+        }
+        .letter-to-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+        .letter-date {
+            font-size: 0.65rem;
+            color: var(--ink-soft);
+            font-weight: 300;
+            text-align: right;
+            margin-top: 2px;
+        }
+
+        .letter-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .divider-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--dusty); opacity: 0.6; }
+        .divider-line { flex: 1; height: 1px; background: rgba(0,0,0,0.07); }
+
+        .letter-salutation {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-style: italic;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .letter-body {
+            font-size: 0.8rem;
+            font-weight: 300;
+            line-height: 1.85;
+            color: #3e3b48;
+        }
+        .letter-body p + p { margin-top: 12px; }
+
+        .letter-sign-wrap {
+            margin-top: 20px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(0,0,0,0.065);
+        }
+        .letter-sign-label {
+            font-size: 0.56rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin-bottom: 3px;
+        }
+        .letter-sign {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem;
+            font-style: italic;
+            color: var(--lav);
+        }
+
+        .back-row {
+            display: flex;
+            justify-content: center;
+            margin-top: 18px;
+        }
+        .back-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.28);
+            padding: 8px 22px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.08em;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+        .back-btn:hover {
+            border-color: rgba(168,159,196,0.35);
+            color: rgba(168,159,196,0.6);
+        }
+
+        .hidden { display: none !important; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="balloons-canvas"></canvas>
+
+    <!-- Screen 1 -->
+    <div id="start-screen">
+        <p class="start-eyebrow">untuk kamu yang spesial</p>
+        <h1 class="start-title">Happy Birthday,<br><em>Ega.</em></h1>
+        <div class="start-rule"></div>
+        <p class="start-sub">ada pesan yang menunggumu</p>
+        <button class="start-btn" onclick="goToEnvelope()">Buka Pesan</button>
+    </div>
+
+    <!-- Screen 2 -->
+    <div id="envelope-screen" class="hidden">
+        <div class="envelope-wrap" id="env-box" onclick="openEnvelope()">
+            <div class="env-body"></div>
+            <div class="env-fold-l"></div>
+            <div class="env-fold-r"></div>
+            <div class="env-flap"></div>
+            <div class="env-stamp">✉</div>
+            <div class="env-address">
+                <div class="to">Kepada Yth.</div>
+                <div class="name">Ega Ramadhan</div>
+            </div>
+            <div class="env-seal">♡</div>
+        </div>
+        <p class="env-hint" id="env-hint">ketuk amplop untuk membuka</p>
+    </div>
+
+    <!-- Screen 3 -->
+    <div id="letter-screen" class="hidden">
+        <div class="letter-card">
+            <div class="letter-topbar">
+                <span></span><span></span><span></span>
+            </div>
+            <div class="letter-content">
+                <div class="bday-chip">🌿 Happy Birthday</div>
+                <div class="letter-meta">
+                    <div>
+                        <div class="letter-to-label">Kepada</div>
+                        <div class="letter-to-name">Ega</div>
+                    </div>
+                    <div class="letter-date" id="letter-date"></div>
+                </div>
+                <div class="letter-divider">
+                    <div class="divider-dot"></div>
+                    <div class="divider-line"></div>
+                    <div class="divider-dot"></div>
+                </div>
+                <p class="letter-salutation">Hey, kamu.</p>
+                <div class="letter-body">
+                    <p>Haloo bang Egaa, hehe salam kenal ya 🤏. Hmmm aku gatau masalah apa yang kamu hadapi sekarang, tapi mungkin sekarang kamu lagi ovt tentang masa depanmu dan omongan orang lain — aku bilang gini karena aku tau dari sosmed kamu yang ga se ceria biasanya.</p>
+                    <p>It's okay bang Egaa. Terkadang ucapan orang tuh nyakitin, tapi kamu jangan ngerasa kalau mimpi kamu ketinggian ya bang. Kamu tuh hebat banget tau, sumpah aku kagum sama kamu — apalagi aku tau kamu anak UB dan aktif banget di sana. Aku yakin kamu bisa kok bang, perjalananmu udah sejauh ini, bahkan kamu rela merantau dari Jakarta ke Malang demi masa depanmu. Masa mau down cuma gara-gara omongan orang? Sedih boleh bang, tapi jangan terlalu larut yaa. Harus semangat dan se-ceria biasanya.</p>
+                    <p>Maaf ya kalau kesannya sok akrab banget. Tapi satu hal yang harus kamu tau — kamu nggak sendirian. Ada yang selalu doain dan nemenin kamu di mana pun, jadi jangan ngerasa sendirian ya bang 🔥</p>
+                    <p>SELAMAT ULANG TAHUN, BANG EGAAAA! Ditunggu ceria-nya lagi di SG dan TikTok! 🎉</p>
+                </div>
+                <div class="letter-sign-wrap">
+                    <div class="letter-sign-label">Dikirim dengan tulus dari</div>
+                    <div class="letter-sign">Egar Dhikaa</div>
+                </div>
+            </div>
+        </div>
+        <div class="back-row">
+            <button class="back-btn" onclick="backToEnvelope()">← Kembali</button>
+        </div>
+    </div>
+
+    <audio id="bg-music" loop preload="auto">
+        <source src="musik.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const d = new Date();
+        document.getElementById('letter-date').textContent =
+            d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        function show(id) {
+            ['start-screen','envelope-screen','letter-screen'].forEach(s =>
+                document.getElementById(s).classList.add('hidden')
+            );
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function goToEnvelope() { show('envelope-screen'); }
+
+        function openEnvelope() {
+            const env = document.getElementById('env-box');
+            if (env.classList.contains('opening')) return;
+            document.getElementById('env-hint').style.opacity = '0';
+            env.classList.add('opening');
+            document.getElementById('bg-music').play().catch(() => {});
+            setTimeout(() => {
+                show('letter-screen');
+                document.getElementById('balloons-canvas').classList.add('visible');
+                window.scrollTo(0, 0);
+                startBalloons();
+            }, 1100);
+        }
+
+        function backToEnvelope() {
+            const env = document.getElementById('env-box');
+            env.classList.remove('opening');
+            env.style.opacity = '';
+            document.getElementById('env-hint').style.opacity = '';
+            document.getElementById('balloons-canvas').classList.remove('visible');
+            stopBalloons();
+            show('envelope-screen');
+        }
+
+        /* ── BALLOONS — soft muted palette ── */
+        const canvas = document.getElementById('balloons-canvas');
+        const ctx    = canvas.getContext('2d');
+        let balloons = [], rafId = null, running = false;
+
+        // Soft, desaturated — sage, dusty rose, lavender, warm white, muted teal
+        const PALETTE = [
+            [168, 188, 162],   // sage green
+            [196, 168, 160],   // dusty rose
+            [168, 159, 196],   // lavender
+            [220, 210, 198],   // warm cream/white
+            [154, 186, 185],   // muted teal
+            [200, 180, 165],   // sand
+            [182, 170, 200],   // soft purple
+        ];
+
+        function resize() {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function makeBalloon(scatter) {
+            const [r,g,b] = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+            const radius  = 13 + Math.random() * 16;
+            return {
+                x: Math.random() * canvas.width,
+                y: scatter
+                    ? -radius - Math.random() * canvas.height
+                    : canvas.height + radius + Math.random() * 120,
+                r: radius, red: r, g, b,
+                opacity: 0.5 + Math.random() * 0.35,
+                vx: (Math.random() - 0.5) * 0.55,
+                vy: -(0.55 + Math.random() * 0.9),
+                wobble: Math.random() * Math.PI * 2,
+                wobbleSpeed: 0.016 + Math.random() * 0.02,
+                stringLen: 22 + radius * 1.3,
+            };
+        }
+
+        function drawBalloon(b) {
+            const a  = b.opacity;
+            const wx = b.x + Math.sin(b.wobble) * 3.5;
+            const wy = b.y;
+
+            // body
+            ctx.beginPath();
+            ctx.ellipse(wx, wy, b.r * 0.82, b.r, 0, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${b.red},${b.g},${b.b},${a})`;
+            ctx.fill();
+
+            // soft rim (slightly darker)
+            ctx.beginPath();
+            ctx.ellipse(wx, wy, b.r * 0.82, b.r, 0, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${b.red-20},${b.g-20},${b.b-20},${a*0.3})`;
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+
+            // shine
+            ctx.beginPath();
+            ctx.ellipse(wx - b.r*0.26, wy - b.r*0.3, b.r*0.2, b.r*0.27, -0.4, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(255,255,255,${a*0.55})`;
+            ctx.fill();
+
+            // knot
+            ctx.beginPath();
+            ctx.moveTo(wx-2.5, wy+b.r);
+            ctx.lineTo(wx+2.5, wy+b.r);
+            ctx.lineTo(wx, wy+b.r+5);
+            ctx.closePath();
+            ctx.fillStyle = `rgba(${b.red},${b.g},${b.b},${a*0.85})`;
+            ctx.fill();
+
+            // string
+            ctx.beginPath();
+            ctx.moveTo(wx, wy+b.r+5);
+            const h = b.stringLen;
+            ctx.bezierCurveTo(wx+5, wy+b.r+h*0.35, wx-5, wy+b.r+h*0.7, wx+2, wy+b.r+h);
+            ctx.strokeStyle = `rgba(255,255,255,${a*0.3})`;
+            ctx.lineWidth   = 0.8;
+            ctx.stroke();
+        }
+
+        function loop() {
+            if (!running) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const b of balloons) {
+                b.wobble += b.wobbleSpeed;
+                b.x += b.vx;
+                b.y += b.vy;
+                drawBalloon(b);
+            }
+            balloons = balloons.filter(b => b.y > -80);
+            while (balloons.length < 26) balloons.push(makeBalloon(false));
+            rafId = requestAnimationFrame(loop);
+        }
+
+        function startBalloons() {
+            if (running) return;
+            running = true;
+            resize();
+            balloons = Array.from({ length: 26 }, () => makeBalloon(true));
+            loop();
+        }
+
+        function stopBalloons() {
+            running = false;
+            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            balloons = [];
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+    </script>
+</body>
+</html>
